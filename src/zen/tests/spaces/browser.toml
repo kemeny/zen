@@ -49,3 +49,5 @@ support-files = [
 ["browser_workspace_bookmarks.js"]
 
 ["browser_zen_workspace_cmdline.js"]
+
+["browser_tidy_tabs.js"]

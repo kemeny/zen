@@ -32,6 +32,9 @@ zen-workspaces-panel-change-icon =
 zen-workspaces-panel-context-default-profile =
     .label = Set Profile
 
+zen-workspaces-panel-tidy =
+    .label = Tidy Tabs by Site
+
 zen-workspaces-panel-unload =
     .label = Unload Space
 

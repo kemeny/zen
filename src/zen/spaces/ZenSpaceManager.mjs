@@ -1752,6 +1752,75 @@ class nsZenWorkspaces {
     });
   }
 
+  /**
+   * Tidy (Arc-style, rules only): unpinned tabs of a space that share a site,
+   * two or more of them, go into a folder named after that site. A folder of
+   * that name in the space is reused.
+   *
+   * @param {string} [workspaceId] - The space to tidy, defaults to the one
+   *   the context menu was opened on, or the active one
+   * @returns {number} How many tabs were moved into folders
+   */
+  tidyTabs(workspaceId) {
+    workspaceId =
+      workspaceId || this.#contextMenuData?.workspaceId || this.activeWorkspace;
+    const bySite = new Map();
+    for (const tab of this.allStoredTabs) {
+      if (
+        tab.getAttribute("zen-workspace-id") !== workspaceId ||
+        tab.pinned ||
+        tab.group ||
+        tab.hasAttribute("zen-essential") ||
+        tab.hasAttribute("zen-empty-tab") ||
+        tab.hasAttribute("zen-glance-tab")
+      ) {
+        continue;
+      }
+      const site = this.#siteForTidy(tab.linkedBrowser?.currentURI);
+      if (!site) {
+        continue;
+      }
+      if (!bySite.has(site)) {
+        bySite.set(site, []);
+      }
+      bySite.get(site).push(tab);
+    }
+
+    let moved = 0;
+    for (const [site, tabs] of bySite) {
+      if (tabs.length < 2) {
+        continue;
+      }
+      const existing = gBrowser.tabGroups.find(
+        group =>
+          group.isZenFolder &&
+          group.label === site &&
+          group.getAttribute("zen-workspace-id") === workspaceId
+      );
+      if (existing) {
+        for (const tab of tabs) {
+          gBrowser.pinTab(tab);
+        }
+        existing.addTabs(tabs);
+      } else {
+        gZenFolders.createFolder(tabs, { label: site, workspaceId });
+      }
+      moved += tabs.length;
+    }
+    return moved;
+  }
+
+  #siteForTidy(uri) {
+    if (!uri?.schemeIs("http") && !uri?.schemeIs("https")) {
+      return null;
+    }
+    try {
+      return Services.eTLD.getBaseDomain(uri);
+    } catch {
+      return uri.host || null;
+    }
+  }
+
   async unloadWorkspace() {
     const workspaceId =
       this.#contextMenuData?.workspaceId || this.activeWorkspace;

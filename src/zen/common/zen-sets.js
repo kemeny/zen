@@ -56,6 +56,7 @@
     cmd_zenOpenWorkspaceCreation: () => gZenWorkspaces.openWorkspaceCreation(),
     cmd_zenCloseUnpinnedTabs: () => gZenWorkspaces.closeAllUnpinnedTabs(),
     cmd_zenUnloadWorkspace: () => gZenWorkspaces.unloadWorkspace(),
+    cmd_zenTidyWorkspaceTabs: () => gZenWorkspaces.tidyTabs(),
     cmd_zenUnloadAllOtherWorkspace: () =>
       gZenWorkspaces.unloadAllOtherWorkspaces(),
     cmd_zenOpenSpaceRoutingSettings: () =>
