@@ -3,6 +3,14 @@
 
 "use strict";
 
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/PromiseTestUtils.sys.mjs"
+);
+
+// The bookmark menu item asks Fluent for a string that a test profile does
+// not load; device_sync/head.js allows the same rejection.
+PromiseTestUtils.allowMatchingRejectionsGlobally(/menu-bookmark-tab/);
+
 add_task(async function test_tidy_groups_same_site_tabs() {
   const a = await BrowserTestUtils.openNewForegroundTab(
     gBrowser,
