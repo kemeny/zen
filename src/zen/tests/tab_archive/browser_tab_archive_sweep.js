@@ -3,6 +3,14 @@
 
 "use strict";
 
+const { PromiseTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/PromiseTestUtils.sys.mjs"
+);
+
+// The bookmark menu item asks Fluent for a string that a test profile does
+// not load; device_sync/head.js allows the same rejection.
+PromiseTestUtils.allowMatchingRejectionsGlobally(/menu-bookmark-tab/);
+
 const { gZenTabArchive } = ChromeUtils.importESModule(
   "resource:///modules/zen/tabarchive/ZenTabArchive.sys.mjs"
 );
