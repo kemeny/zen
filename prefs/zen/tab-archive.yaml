@@ -1,0 +1,26 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Close unpinned tabs nobody has looked at for a while and keep them in the
+# archive, so they can be found again from the URL bar (Arc-style).
+- name: zen.tabs.auto-archive.enabled
+  value: false
+
+- name: zen.tabs.auto-archive.after-hours
+  value: 12
+
+# Unload idle unpinned tabs before they get archived. 0 turns it off.
+- name: zen.tabs.auto-archive.unload-after-minutes
+  value: 0
+
+# Also keep tabs the user closes by hand in the archive.
+- name: zen.tabs.archive.record-closed-tabs
+  value: true
+
+- name: zen.tabs.archive.max-entries
+  value: 500
+
+# How often the idle check runs, in minutes.
+- name: zen.tabs.auto-archive.check-interval-minutes
+  value: 10
