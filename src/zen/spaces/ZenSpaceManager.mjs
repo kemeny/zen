@@ -1788,15 +1788,16 @@ class nsZenWorkspaces {
 
     let moved = 0;
     for (const [site, tabs] of bySite) {
-      if (tabs.length < 2) {
-        continue;
-      }
       const existing = gBrowser.tabGroups.find(
         group =>
           group.isZenFolder &&
           group.label === site &&
           group.getAttribute("zen-workspace-id") === workspaceId
       );
+      // A new folder needs two tabs; an existing one takes a single tab.
+      if (!existing && tabs.length < 2) {
+        continue;
+      }
       if (existing) {
         for (const tab of tabs) {
           gBrowser.pinTab(tab);
