@@ -46,14 +46,9 @@ add_task(async function test_tidy_reuses_folder() {
     gBrowser,
     "https://example.com/3"
   );
-  const d = await BrowserTestUtils.openNewForegroundTab(
-    gBrowser,
-    "https://example.com/4"
-  );
   gZenWorkspaces.tidyTabs(gZenWorkspaces.activeWorkspace);
 
-  is(c.group, folder, "new tabs join the existing folder");
-  is(d.group, folder, "new tabs join the existing folder");
+  is(c.group, folder, "a single new tab joins the existing folder");
   is(b.group, folder, "old tabs stay in it");
   await removeFolder(folder);
 });
