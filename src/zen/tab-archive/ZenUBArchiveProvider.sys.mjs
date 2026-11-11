@@ -16,6 +16,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 const MAX_RESULTS = 3;
+const DYNAMIC_TYPE_NAME = "zen-archive";
 
 /**
  * Shows archived tabs that match what was typed, below open tabs, so a tab
@@ -59,22 +60,79 @@ export class ZenUrlbarProviderArchive extends UrlbarProvider {
       addCallback(
         this,
         new lazy.UrlbarResult({
-          type: UrlbarShared.RESULT_TYPE.URL,
+          type: UrlbarShared.RESULT_TYPE.DYNAMIC,
           source: UrlbarShared.RESULT_SOURCE.HISTORY,
           payload: {
-            url: entry.url,
+            dynamicType: DYNAMIC_TYPE_NAME,
+            zenArchiveId: entry.id,
+            // Not "url": a dynamic result with a url would be loaded in the
+            // current tab instead of going through onEngagement.
+            archivedUrl: entry.url,
             title: entry.title,
             icon: entry.icon || UrlbarShared.getIconForUrl(entry.url),
-          },
-          highlights: {
-            url: UrlbarShared.HIGHLIGHT.TYPED,
-            title: UrlbarShared.HIGHLIGHT.TYPED,
           },
         })
       );
       if (++added >= Math.min(MAX_RESULTS, queryContext.maxResults)) {
         return;
       }
+    }
+  }
+
+  getViewUpdate(result) {
+    return {
+      icon: { attributes: { src: result.payload.icon } },
+      title: {
+        textContent: result.payload.title,
+        attributes: { dir: "ltr" },
+      },
+      url: {
+        textContent: result.payload.archivedUrl,
+        attributes: { dir: "ltr" },
+      },
+    };
+  }
+
+  getViewTemplate() {
+    return {
+      attributes: {
+        selectable: true,
+      },
+      children: [
+        {
+          name: "icon",
+          tag: "img",
+          classList: ["urlbarView-favicon"],
+        },
+        {
+          name: "title",
+          tag: "span",
+          classList: ["urlbarView-title"],
+        },
+        {
+          name: "url",
+          tag: "span",
+          classList: ["urlbarView-url"],
+        },
+      ],
+    };
+  }
+
+  /**
+   * Reopens the archived tab through the archive, so it goes back to its
+   * space and container and leaves the archive.
+   */
+  async onEngagement(queryContext, controller, details) {
+    const { zenArchiveId } = details.result.payload;
+    if (!zenArchiveId) {
+      return;
+    }
+    const window = details.element.documentGlobal;
+    const entry = (await lazy.gZenTabArchive.getEntries()).find(
+      e => e.id === zenArchiveId
+    );
+    if (entry) {
+      await lazy.gZenTabArchive.reopen(entry, window);
     }
   }
 }
